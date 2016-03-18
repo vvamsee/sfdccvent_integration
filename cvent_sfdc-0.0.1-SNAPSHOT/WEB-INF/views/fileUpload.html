@@ -1,0 +1,327 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>File Upload</title>
+    </head>
+	<style>
+		
+	</style>
+   <!--  <script type="text/javascript" src="/resources/scripts/fileUpload.js"></script> -->
+    <script type="text/javascript" src="/resources/scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="/resources/scripts/angular.min.js"></script>
+    <script type="text/javascript" src="/resources/scripts/jquery.alerts.js"></script>
+    <link rel="stylesheet" type="text/css" href="/resources/css/jquery.alerts.css"/>
+   <!--  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.min.js"></script> -->
+    <script>
+    /* function loadingImage(){
+    	alert("IN onFileChange")
+        document.getElementById("backgroundPopup").style.opacity= 0.7;
+        document.getElementById("backgroundPopup").style.display="block";
+        document.getElementById("popupImg").style.display="block";
+        document.getElementById("loadingImgage").style.display="block";
+    } */
+    var app = angular.module("fileuploadapp", []);
+    app.controller("fileuploadcontroller", function($scope,$http) {
+    	
+    	$scope.init = function init() {
+    		
+    		var urlval = window.location.href;
+    		var urlparam;
+		  	if(urlval.indexOf('?id=')>0){
+    			urlparam = urlval.substring(urlval.indexOf('?id=')+4);
+    			
+            $http({
+		        method: 'GET',
+		        url: '/gae/getrecorddata',
+		        params: {recordId: urlparam}
+	    	}).success(function(returnJson) {
+	    		var obj = JSON.parse(returnJson);
+	    		//console.log("--------->"+obj.ProductName);
+	    		//console.log("returnJson json " + JSON.stringify(returnJson));
+       			//var returnJson = JSON.stringify(returnJson);
+       			
+       			document.getElementById("sorderid").innerHTML = obj.SalesOrder;
+				document.getElementById("productid").innerHTML = obj.ProductName;
+       			
+				document.getElementById("bpos1").innerHTML = obj.BrandingPosition1;
+				document.getElementById("bdim1").innerHTML = obj.BP1PrintDimensions;
+				document.getElementById("bmet1").innerHTML = obj.BP1BrandingMethods;
+				document.getElementById("bcol1").innerHTML = obj.BP1PrintColors;
+				if(obj.BrandingPosition1==""&&obj.BP1PrintDimensions==""&&obj.BP1BrandingMethods==""&&obj.BP1PrintColors=="")
+					document.getElementById("row1").style.display="none";
+				else
+					document.getElementById("row1").style.display="";
+				
+				document.getElementById("bpos2").innerHTML = obj.BrandingPosition2;
+				document.getElementById("bdim2").innerHTML = obj.BP2PrintDimensions;
+				document.getElementById("bmet2").innerHTML = obj.BP2BrandingMethods;
+				document.getElementById("bcol2").innerHTML = obj.BP2PrintColors;
+				if(obj.BrandingPosition2==""&&obj.BP2PrintDimensions==""&&obj.BP2BrandingMethods==""&&obj.BP2PrintColors=="")
+					document.getElementById("row2").style.display="none";
+				else
+					document.getElementById("row2").style.display="";
+				
+				document.getElementById("bpos3").innerHTML = obj.BrandingPosition3;
+				document.getElementById("bdim3").innerHTML = obj.BP3PrintDimensions;
+				document.getElementById("bmet3").innerHTML = obj.BP3BrandingMethods;
+				document.getElementById("bcol3").innerHTML = obj.BP3PrintColors;
+				if(obj.BrandingPosition3==""&&obj.BP3PrintDimensions==""&&obj.BP3BrandingMethods==""&&obj.BP3PrintColors=="")
+					document.getElementById("row3").style.display="none";
+				else
+					document.getElementById("row3").style.display="";
+				
+				document.getElementById("bpos4").innerHTML = obj.BrandingPosition4;
+				document.getElementById("bdim4").innerHTML = obj.BP4PrintDimensions;
+				document.getElementById("bmet4").innerHTML = obj.BP4BrandingMethods;
+				document.getElementById("bcol4").innerHTML = obj.BP4PrintColors;
+				if(obj.BrandingPosition4==""&&obj.BP4PrintDimensions==""&&obj.BP4BrandingMethods==""&&obj.BP4PrintColors=="")
+					document.getElementById("row4").style.display="none";
+				else
+					document.getElementById("row4").style.display="";
+				
+				document.getElementById("bpos5").innerHTML = obj.BrandingPosition5;
+				document.getElementById("bdim5").innerHTML = obj.BP5PrintDimensions;
+				document.getElementById("bmet5").innerHTML = obj.BP5BrandingMethods;
+				document.getElementById("bcol5").innerHTML = obj.BP5PrintColors;
+				if(obj.BrandingPosition5==""&&obj.BP5PrintDimensions==""&&obj.BP5BrandingMethods==""&&obj.BP5PrintColors=="")
+					document.getElementById("row5").style.display="none";
+				else
+					document.getElementById("row5").style.display="";
+            }).error(function(returnErrorJson, status, headers, config) {
+            	
+             }); //error
+            }
+    	};
+    	/**
+    	 * event happens when file is selected
+    	 */
+    	$scope.onFileChange = function(element) {
+    		//alert("IN onFileChange")
+    		 $scope.$apply(function($scope) {
+    		   $scope.files = element.files;         
+    		 });
+    	};
+    	
+    	$scope.loadingImage = function loadingImage() {
+    		//alert("IN onFileChange")
+	        document.getElementById("backgroundPopup").style.opacity= 0.7;
+	        document.getElementById("backgroundPopup").style.display="block";
+	        document.getElementById("popupImg").style.display="block";
+	        document.getElementById("loadingImgage").style.display="block"; 
+    		/*  $scope.$apply(function($scope) {
+    				      
+    		 }); */
+    	};
+    	
+    	$scope.fileUpload = function fileUpload() {
+    		  	var formData = new FormData(this);
+    		  	var urlval = window.location.href;
+    		  	if(urlval.indexOf('?id=')>0){
+	    			var urlparam = urlval.substring(urlval.indexOf('?id=')+4);
+	    			//alert("recordId - "+ urlparam);
+	    			formData.append('recordId', urlparam);
+		    		  	angular.forEach($scope.files,function(file){
+		    		  		formData.append('file',file);
+		    		  	});
+		    		    console.log("formData - "+formData);
+		    		    $http.post('/gae/pdfFileUpload', formData, {
+		    	            transformRequest: angular.identity,
+		    	            headers: {'Content-Type': undefined}
+		    	        }).success(function(returnJSON) {
+		    	        	document.getElementById("backgroundPopup").style.display="none";
+		    	            document.getElementById("popupImg").style.display="none";
+		    	            document.getElementById("loadingImgage").style.display="none";
+		    	            jAlert(JSON.stringify(returnJSON.serviceResponse), ' Ok ');
+		    	        	//alert(JSON.stringify(returnJSON.serviceResponse));
+		    				}).error(function(returnErrorJson, status, headers, config) {
+		    			alert("IN error")
+    				});//error
+    		  	}	
+    		};
+    });
+    </script>
+    <style>
+	    body{
+	     background:url("/resources/images/BG.jpg");
+	   } 
+       #body{
+			background:rgba(158, 158, 158, 0.31);
+			border-top: 3px solid rgb(66, 184, 221);
+			float: left;
+			margin: 0px 0px 0px 84px;
+			min-height: 530px;
+			overflow: hidden;
+			padding: 0;
+			width: 1213px;	
+			box-shadow: 0 2px 5px rgba(105, 108, 109, 0.7), 0 0 8px 5px rgba(208, 223, 226, 0.4) inset;
+		}
+		.fileUploadSection{
+			background: rgb(247, 247, 247) none repeat scroll 0 0;
+			border: 1px solid rgba(147, 184, 189, 0.8);
+			border-radius: 5px;
+			box-shadow: 0 2px 5px rgba(105, 108, 109, 0.7), 0 0 8px 5px rgba(208, 223, 226, 0.4) inset;
+			position: absolute;
+			top: 0;
+		}
+		#header {
+			background: rgba(255, 255, 255, 0.4);
+			box-shadow: 1px 0 2px rgba(0, 0, 0, 0.2);
+			font-size: 11px;
+			line-height: 24px;
+			position: relative;
+			text-transform: uppercase;
+			z-index: 9999;
+			height: 127px;
+			margin: -13px 0px 0px 83px;
+			width: 1215px;
+			border: 0px solid #afafaf;
+			box-shadow: 0 2px 5px rgba(105, 108, 109, 0.7), 0 0 8px 5px rgba(208, 223, 226, 0.4) inset;
+		}
+		.btnupload {
+           background: rgb(66, 184, 221);;
+           border-radius: 11px;
+           font-family: Arial;
+           color: #ffffff;
+           font-size: 20px;
+           padding: 6px 25px 6px 25px;
+           text-decoration: none;
+           border-color: rgb(66, 184, 221);
+		   margin: 0px 0px 0px -394px;
+       }
+	   
+
+     .btnupload:hover {
+         background: #3cb0fd;
+         text-decoration: none;
+		 border-color: #3cb0fd;
+     }
+	 #footer {
+		border-top: 3px solid rgb(66, 184, 221);
+		margin: 0 0px 0px 83px;
+		overflow: hidden;
+		padding: 34px 0;
+		width: 1216px;
+	}
+	#footer p {
+		color: #0b4545;
+		float: right;
+		font-size: 14px;
+		letter-spacing: 1px;
+		margin: 0;
+		padding: 0;
+	}
+	#backgroundPopup {
+        z-index: 1;
+        position: fixed;
+        display: none;
+        height: 100%;
+        width: 100%;
+        background: #000000;
+        top: 0px;
+        left: 0px;
+      }
+	  table {
+		border-collapse: collapse;
+		/*text-align: left;*/
+		padding: 15px;
+	  }
+	</style>
+	
+    <body ng-app="fileuploadapp" style="margin: 0px 0px 0px 15px;">
+	  <div id="header">
+	     <br><br>
+	     <h1 style="text-align: center;">Art Work File Upload Form</h1>
+	     <div>&nbsp;</div>
+		 <div>&nbsp;</div>
+		 <div style="font-size:15px;">&nbsp;<b>Branding Information</b></div>
+		 <table width="100%">
+	     	<tr>
+	     		<td>
+					&nbsp;<b>Sales Order</b>&nbsp;&nbsp;&nbsp;
+					<span id="sorderid"></span>
+				</td>
+	     		<td align="right">
+					<b>Product</b>&nbsp;&nbsp;&nbsp;    
+					<span id="productid"></span>&nbsp;
+				</td>
+	     	</tr>
+	     </table>
+		 <div>&nbsp;</div>
+		 <table width="99%" border="1" align="center">
+	     	<tr>
+				<th width="25%">Branding Position</th>
+	     		<th width="25%">BP Print Dimensions</th>
+	     		<th width="25%">BP Branding Methods</th>
+	     		<th width="25%">BP Print Colors</th>
+	     	</tr>
+	     	<tr id="row1">
+				<td align="center" id="bpos1"></td>
+				<td align="center" id="bdim1"></td>
+				<td align="center" id="bmet1"></td>
+				<td align="center" id="bcol1"></td>
+			</tr>
+	     	<tr id="row2">
+				<td align="center" id="bpos2"></td>
+				<td align="center" id="bdim2"></td>
+				<td align="center" id="bmet2"></td>
+				<td align="center" id="bcol2"></td>
+			</tr>
+			<tr id="row3">
+				<td align="center" id="bpos3"></td>
+				<td align="center" id="bdim3"></td>
+				<td align="center" id="bmet3"></td>
+				<td align="center" id="bcol3"></td>
+			</tr>
+			<tr id="row4">
+				<td align="center" id="bpos4"></td>
+				<td align="center" id="bdim4"></td>
+				<td align="center" id="bmet4"></td>
+				<td align="center" id="bcol4"></td>
+			</tr>
+			<tr id="row5">
+				<td align="center" id="bpos5"></td>
+				<td align="center" id="bdim5"></td>
+				<td align="center" id="bmet5"></td>
+				<td align="center" id="bcol5"></td>
+			</tr>     	     	     	
+	     </table>
+	  </div>
+	  
+      <form ng-controller="fileuploadcontroller" ng-init="init();">	
+		<div id="body">
+			  <div style="width:50%;margin: 450px 0px 0px 247px;" class="fileUploadSection"> 
+				<div>&nbsp;</div>
+				<table width="100%" align="center" style="margin:0px 0px 0px 211px"> 
+					<tr>
+						<td><label for="file_photo"><b>Select the File:</b></label></td>
+						<td>
+						
+						<input type="file" ng-model="file" name="file" id="file" style="padding: 5px 0px 5px 5px;margin: 0px 227px 0px -30px;" onchange="angular.element(this).scope().onFileChange(this);">
+						</td>
+					</tr>
+					<tr>
+						<td align="center" colspan="2">
+							<p id="demo"></p>
+							
+							<input class="btnupload" type="button" value="Upload" ng-click="loadingImage();fileUpload();" />
+						</td>
+					</tr>
+				</table>
+				<div>&nbsp;</div>
+			</div>
+		 </div>
+        </form>
+		<div id="footer">		
+		<!--<p>
+			&copy;Copyright 2014 AppShark Software Pvt. Ltd. All rights reserved.
+		</p>-->
+	</div>
+	<div id="popupImg" style="left: 55%;margin-left: -450px;position: fixed;top: 47%;width: 725px;z-index: 2;display:none">   
+       <div id="loadingImgage" align="center">
+      <img src="/resources/images/ajax-loader-1.gif" border="0" style="margin-left: 50px;" />
+     </div>
+   </div>  
+   <div id="backgroundPopup" style="background:black;display:none;"></div>
+    </body>
+</html>
